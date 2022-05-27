@@ -1,41 +1,60 @@
 var axios = require("axios");
 
-// axios(config)
-//   .then(function (response) {
-//     console.log(JSON.stringify(response.data));
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-
-let trimPlaylist = (playlists) => {
-  let result = [];
+let trimPlaylist = (playlists, payload) => {
   playlists.forEach((playlist) => {
-    // result.push({playlist.name, playlist.external_urls.spotify});
-    result.push({
+    payload.push({
       name: playlist.name,
       external_urls: playlist.external_urls.spotify,
     });
-    
   });
-  return result;
+
+  return payload;
 };
 
 let getUserPlaylists = async (accessToken) => {
-  var config = {
+  let result = [];
+
+  let response1;
+
+  await axios({
     method: "get",
     url: "https://api.spotify.com/v1/me/playlists",
     headers: {
       Authorization: "Bearer " + accessToken,
     },
-  };
-  return await axios(config)
-    .then((response) => {
-      return trimPlaylist(response.data.items);
+  })
+    .then((res) => {
+      response1 = res;
+      result = trimPlaylist(res.data.items, result);
+      return result;
     })
     .catch((error) => {
       console.log(error);
     });
+
+  while (response1.data.next) {
+    let response2;
+
+    await axios({
+      method: "get",
+      url: response1.data.next,
+      headers: {
+        Authorization: "Bearer " + accessToken,
+      },
+    })
+      .then((res) => {
+        response2 = res;
+        result = trimPlaylist(res.data.items, result);
+        return result;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    response1 = response2;
+  }
+
+  return result;
 };
 
 let getUserPlaylistsByID = async () => {

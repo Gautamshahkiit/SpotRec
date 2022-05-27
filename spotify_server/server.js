@@ -1,14 +1,14 @@
-require('dotenv').config();
-var express = require('express'),
-  session = require('express-session'),
-  passport = require('passport'),
-  SpotifyStrategy = require('passport-spotify').Strategy,
-  consolidate = require('consolidate');
+require("dotenv").config();
+var express = require("express"),
+  session = require("express-session"),
+  passport = require("passport"),
+  SpotifyStrategy = require("passport-spotify").Strategy,
+  consolidate = require("consolidate");
 
-let spotify = require('./spotify.js');
+let spotify = require("./spotify.js");
 
 var port = 5000;
-var authCallbackPath = '/auth/spotify/callback';
+var authCallbackPath = "/auth/spotify/callback";
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -30,14 +30,14 @@ passport.deserializeUser(function (obj, done) {
 //   credentials (in this case, an accessToken, refreshToken, expires_in
 //   and spotify profile), and invoke a callback with a user object.
 
-let token = '';
+let token = "";
 
 passport.use(
   new SpotifyStrategy(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: 'http://localhost:' + port + authCallbackPath,
+      callbackURL: "http://localhost:" + port + authCallbackPath,
     },
     function (accessToken, refreshToken, expires_in, profile, done) {
       // asynchronous verification, for effect...
@@ -57,33 +57,33 @@ passport.use(
 var app = express();
 
 // configure Express
-app.set('views', __dirname + '/views');
-app.set('view engine', 'html');
+app.set("views", __dirname + "/views");
+app.set("view engine", "html");
 
 app.use(
-  session({secret: 'keyboard cat', resave: true, saveUninitialized: true})
+  session({ secret: "keyboard cat", resave: true, saveUninitialized: true })
 );
 // Initialize Passport!  Also use passport.session() middleware, to support
 // persistent login sessions (recommended).
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + "/public"));
 
-app.engine('html', consolidate.nunjucks);
+app.engine("html", consolidate.nunjucks);
 
-app.get('/', function (req, res) {
-  res.render('index.html', {user: req.user});
+app.get("/", function (req, res) {
+  res.render("index.html", { user: req.user });
 });
 
-app.get('/playlists', ensureAuthenticated, function (req, res) {
+app.get("/playlists", ensureAuthenticated, function (req, res) {
   spotify.getUserPlaylists(token).then(function (data) {
     res.json(data);
   });
 });
 
-app.get('/login', function (req, res) {
-  res.render('login.html', {user: req.user});
+app.get("/login", function (req, res) {
+  res.render("login.html", { user: req.user });
 });
 
 // GET /auth/spotify
@@ -95,7 +95,10 @@ app.get(
   "/auth/spotify",
   passport.authenticate("spotify", {
     scope: [
-      "playlist-modify-public", "playlist-read-private", "playlist-modify-private", "playlist-read-collaborative",
+      "playlist-modify-public",
+      "playlist-read-private",
+      "playlist-modify-private",
+      "playlist-read-collaborative",
     ],
     showDialog: true,
   })
@@ -108,20 +111,20 @@ app.get(
 //   which, in this example, will redirect the user to the home page.
 app.get(
   authCallbackPath,
-  passport.authenticate('spotify', { failureRedirect: '/login' }),
+  passport.authenticate("spotify", { failureRedirect: "/login" }),
   function (req, res) {
-    console.log('redirecting to /');
-    res.redirect('/');
+    console.log("redirecting to /");
+    res.redirect("/");
   }
 );
 
-app.get('/logout', function (req, res) {
+app.get("/logout", function (req, res) {
   req.logout();
-  res.redirect('/');
+  res.redirect("/");
 });
 
 app.listen(port, function () {
-  console.log('App is listening on port ' + port);
+  console.log("App is listening on port " + port);
 });
 
 // Simple route middleware to ensure user is authenticated.
@@ -133,5 +136,5 @@ function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/auth/spotify');
+  res.redirect("/auth/spotify");
 }
