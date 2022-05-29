@@ -82,6 +82,13 @@ app.get("/playlists", ensureAuthenticated, function (req, res) {
   });
 });
 
+app.get("/playlists/:id", ensureAuthenticated, async function (req, res) {
+  let dataa = await spotify.getUserPlaylistsByID(req.params.id, token)
+  console.log(dataa);
+  res.json(dataa);
+  // res.send("Hello World!");
+});
+
 app.get("/login", function (req, res) {
   res.render("login.html", { user: req.user });
 });
@@ -114,6 +121,7 @@ app.get(
   passport.authenticate("spotify", { failureRedirect: "/login" }),
   function (req, res) {
     console.log("redirecting to /");
+    req.session.token = token;
     res.redirect("/");
   }
 );

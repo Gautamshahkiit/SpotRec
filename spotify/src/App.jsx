@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import Login from "./components/Login";
-import Spotify from "./components/Spotify";
+import Login from "./Login";
+import Spotify from "./Spotify";
 import { reducerCases } from "./utils/Constants";
 import { useStateProvider } from "./utils/StateProvider";
 
