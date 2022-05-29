@@ -1,8 +1,6 @@
 import React, { useState, useFetch } from "react";
 
-
 export default function Spotify() {
-
   let [data, setData] = useState([]);
 
   let getData = () => {
@@ -16,13 +14,11 @@ export default function Spotify() {
       .then((response) => response.json())
       .then((data) => {
         setData(data);
-      })
+      });
   };
-  useFetch( () => {
+  useFetch(() => {
     getData();
-  })
+  });
 
-  return <div>
-    data.for
-  </div>;
+  return <div>data.for</div>;
 }

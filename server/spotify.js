@@ -1,8 +1,10 @@
 var axios = require("axios");
+const { lodash } = require("consolidate");
 
 let trimPlaylist = (playlists, payload) => {
   playlists.forEach((playlist) => {
     payload.push({
+      id: playlist.id,
       name: playlist.name,
       external_urls: playlist.external_urls.spotify,
     });
@@ -45,7 +47,7 @@ let getUserPlaylists = async (accessToken) => {
       .then((res) => {
         response2 = res;
         result = trimPlaylist(res.data.items, result);
-        return result;
+        // return result;
       })
       .catch((error) => {
         console.log(error);
@@ -57,8 +59,24 @@ let getUserPlaylists = async (accessToken) => {
   return result;
 };
 
-let getUserPlaylistsByID = async () => {
-  console.log("getUserPlaylists");
+let getUserPlaylistsByID = async (playlistID, accessToken) => {
+  let arrayOfTracks = [];
+
+  await axios({
+    method: "get",
+    url: `https://api.spotify.com/v1/playlists/${playlistID}`,
+    headers: {
+      Authorization: "Bearer " + accessToken,
+    },
+  })
+    .then(function (response) {
+      arrayOfTracks = response.data.tracks.items;
+      console.log(arrayOfTracks);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  return arrayOfTracks;
 };
 
 module.exports = { getUserPlaylists, getUserPlaylistsByID };
